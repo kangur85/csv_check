@@ -26,29 +26,24 @@
 # Parse parameters
 OPTS=`getopt -o d:c:f:sn -n 'csv_verify' -- "$@"`
 
-# Default options
-DECIMAL=.
-SUSPICIOUS_ONLY=0
-HEADERS=1
-MAX_DIFFERENT_FIELD_CNT=4
-FIELD_DELIMITER=|
-
 if [ $? != 0 ] ; then
     echo "Failed parsing options." >&2 ;
     exit 1 ;
 fi
 eval set -- "$OPTS"
 
+# Default options
+DECIMAL=.
+SUSPICIOUS_ONLY=0
+HEADERS=1
+MAX_DIFFERENT_FIELD_CNT=4
+FIELD_DELIMITER="|"
 
 while true ; do
     case "$1" in
       -d|--decimal_separator) DECIMAL=$2 ; shift 2 ;;
       -c|--max_different_field_cnt) MAX_DIFFERENT_FIELD_CNT=$2 ; shift 2 ;;
-      -f|--field_delimiter)
-          case "$2" in
-              "" ) shift 2;;
-               * ) FIELD_DELIMITER=$2; shift 2;;
-          esac;;
+      -f|--field_delimiter) FIELD_DELIMITER=$2; shift 2;;
       -s|--suspicious_only) SUSPICIOUS_ONLY=1 ; shift ;;
       -n|--no_headers) HEADERS=0 ; shift ;;
       --) shift ; break ;;
