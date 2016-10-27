@@ -27,6 +27,10 @@ function column_name(i, value)
        return "Column " i
 }
 
+function get_suspicious(i) {
+    return (others[i] > 0 && others[i]*20 < floats[i] + integers[i]) ? "[S]" : "";
+}
+
 NR == 1 {
     field_cnt=NF
     for (i = 1; i <= NF; ++i) {
@@ -82,11 +86,13 @@ BEGIN {
 }
 
 END {
-        printf("%-" longest_header_size "s\t%10s\t%10s\t%10s\t%10s\t%10s\n",
-                  "Name", "Empty", "Integers", "Floats", "Whitespaces", "Others")
+        printf("%-" longest_header_size "s\t%10s\t%10s\t%10s\t%10s\t%10s\t%10s\n",
+                  "Name", "Empty", "Integers", "Floats", "Whitespaces", "Others", "Suspicious")
         for (i = 1; i <= field_cnt; ++i) {
-            printf("%-" longest_header_size "s\t%10d\t%10d\t%10d\t%10d\t%10d\n",
-                      headers[i], empty_fields[i], integers[i], floats[i], whitespaces[i], others[i])
+            if (!suspicious_only || get_suspicious(i) != "") {
+                printf("%-" longest_header_size "s\t%10d\t%10d\t%10d\t%10d\t%10d\t%10s\n",
+                          headers[i], empty_fields[i], integers[i], floats[i], whitespaces[i], others[i], get_suspicious(i))
+            }
         }
         print "Rows processed (incl. headers, if exist): " NR
         if (different_field_cnt > max_different_field_cnt ) {
