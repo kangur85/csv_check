@@ -23,13 +23,43 @@
 
 # To get a help, execute the script without any parameters.
 
+function print_and_die {
+    echo "$1"
+    exit 1
+}
+
+function print_usage {
+    cat << EOF
+Usage: $0 [options] csv_file
+
+Where options are:
+  -d | --decimal_separator       Decimal separator - for parsing floats
+  -c | --max_different_field_cnt Maximum number of ragged line errors.
+                                 Regardless the number of lines displayed, a summary
+                                 contains the total number of errors. Default: 4
+  -f | --field_delimiter         Field delimiter. Default value: "|"
+  -s | --suspicious_only         Print suspicious columns and errors only.
+  -n | --no_headers              Do not treat the first line as a header.
+EOF
+}
+
+function print_usage_and_die {
+    print_usage
+    exit 1
+}
+
 # Parse parameters
-OPTS=`getopt -o d:c:f:sn -n 'csv_verify' -- "$@"`
+if [ $# -eq 0 ]; then
+    print_usage_and_die
+fi
+
+OPTS=`getopt -o d:c:f:sn --long decimal_separator:,max_different_field_cnt:,field_delimiter:,suspicious_only,no_headers -n 'csv_verify' -- "$@"`
 
 if [ $? != 0 ] ; then
     echo "Failed parsing options." >&2 ;
     exit 1 ;
 fi
+
 eval set -- "$OPTS"
 
 # Default options
@@ -54,20 +84,11 @@ shift $(( OPTIND - 1 ));
 
 # Check dependencies
 AWK=$( which awk )
-if [ -z "$AWK" ]; then
+if [ $? -gt 0 ]; then
     print_and_die "awk couldn't be found."
 fi
 
 CSV_FILENAME="$1"
 AWK_SCRIPT_FILENAME="csv_verify.awk"
 
-echo "debug:: suspicious_only=$SUSPICIOUS_ONLY max_different_fields_cnt=$MAX_DIFFERENT_FIELD_CNT"
-echo "debug:: decimal=$DECIMAL has_headers=$HEADERS field_delimiter=$FIELD_DELIMITER"
-echo "debug:: awk script=$AWK_SCRIPT_FILENAME, csv_filename=$CSV_FILENAME"
-
 $AWK -v "suspicious_only=$SUSPICIOUS_ONLY" -v "max_different_field_cnt=$MAX_DIFFERENT_FIELD_CNT" -v "decimal=$DECIMAL" -v "has_headers=$HEADERS" -F"$FIELD_DELIMITER" -f $AWK_SCRIPT_FILENAME $CSV_FILENAME
-
-function print_and_die {
-    echo "$1"
-    exit 1
-}
