@@ -4,7 +4,7 @@ A simple tool for checking data types in delimiter separated files.
 
 ## Usage
 
-'''bash
+```bash
 /csv_verify.sh
 Usage: ./csv_verify.sh [options] csv_file
 
@@ -16,4 +16,4 @@ Where options are:
   -f | --field_delimiter         Field delimiter. Default value: "|"
   -s | --suspicious_only         Print suspicious columns and errors only.
   -n | --no_headers              Do not treat the first line as a header.
-'''
+```
